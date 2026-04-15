@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Opening Outfit AI...</title>
+</head>
+<body>
+<p style="font-family:sans-serif;text-align:center;margin-top:40px">
+  Opening Outfit AI...
+</p>
+
+<script>
+  const parts = window.location.pathname.split('/');
+  const memberIndex = parts.indexOf('member');
+  const memberId = memberIndex !== -1 ? parts[memberIndex + 1] : null;
+
+  if (memberId) {
+    // 1. Try to open the app
+    window.location.href = 'yourapp://member/' + memberId;
+
+    // 2. Fallback → Play Store if app not installed
+    setTimeout(function () {
+      window.location.href =
+        'https://play.google.com/store/apps/details?id=com.yourcompany.yourapp';
+    }, 2000);
+  } else {
+    // No member id → go to Play Store directly
+    window.location.href =
+      'https://play.google.com/store/apps/details?id=com.yourcompany.yourapp';
+  }
+</script>
+</body>
+</html>zz

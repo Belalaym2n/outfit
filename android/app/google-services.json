@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "299767090343",
+    "project_id": "outfit-ai-application",
+    "storage_bucket": "outfit-ai-application.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:299767090343:android:71b2e845934b447373df82",
+        "android_client_info": {
+          "package_name": "com.outfixAi.graduation_proj"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA3pzuj43Y8-JBmrcjWqjyvN95TfOlYOlc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

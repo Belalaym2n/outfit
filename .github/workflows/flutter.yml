@@ -1,0 +1,39 @@
+name: Flutter CI
+
+on:
+  push:
+    branches: [develop]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Clone repo
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # 2. Install Flutter
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.22.0'
+
+      # 3. Cache dependencies
+      - name: Cache pub packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.pub-cache
+          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
+
+      # 4. Install dependencies
+      - name: Get dependencies
+        run: flutter pub get
+
+      # 5. Run tests
+      - name: Run tests
+        run: flutter test
+
+      # 6. Build APK
+      - name: Build APK
+        run: flutter build apk --release --target lib/main_development.dart
