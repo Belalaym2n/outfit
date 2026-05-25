@@ -86,15 +86,21 @@ class _OurTeamScreenState extends State<OurTeamScreen>
     _dividerFade = fade(0.32, 0.58);
 
     final count = TeamData.members.length;
-    _cardFades = List.generate(
-      count,
-      (i) => fade(0.40 + i * 0.06, 0.68 + i * 0.06),
-    );
-    _cardSlides = List.generate(
-      count,
-      (i) => slide(0.40 + i * 0.06, 0.68 + i * 0.06,
-          from: const Offset(0, 0.10)),
-    );
+    _cardFades = List.generate(count, (i) {
+      final start = 0.4 + (i / count) * 0.4;
+      final end = start + 0.2;
+      return fade(start, end.clamp(0.0, 1.0));
+    });
+
+    _cardSlides = List.generate(count, (i) {
+      final start = 0.4 + (i / count) * 0.4;
+      final end = start + 0.2;
+      return slide(
+        start,
+        end.clamp(0.0, 1.0),
+        from: const Offset(0, 0.10),
+      );
+    });
 
     _bg1 = Tween<double>(begin: -14, end: 14).animate(
       CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),

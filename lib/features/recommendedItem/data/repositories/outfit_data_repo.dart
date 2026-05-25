@@ -1,58 +1,39 @@
+import 'package:graduation_proj/features/recommendedItem/data/data_sources/locale/outfit_local_ds.dart';
+import 'package:graduation_proj/features/recommendedItem/data/data_sources/remote/remote_ds.dart';
+import 'package:graduation_proj/features/recommendedItem/data/data_sources/remote/remote_ds_imp.dart';
 
-import '../../domain/entities/outfit_entity.dart';
- import '../../domain/entities/saved_item_entity.dart';
+import '../../../../core/handleErrors/result_pattern.dart';
+import '../../../savedItems/data/models/saved_item_model.dart';
 import '../../domain/repositories/outfit_domain_repo.dart';
-import '../data_sources/locale/outfit_local_ds.dart';
-import '../data_sources/remote/remote_ds.dart';
-
+import '../../domain/use_cases/outfit_use_cases.dart';
 class OutfitRepositoryImpl implements OutfitRepository {
-  final OutfitLocalDataSource _local;
-  final OutfitRemoteDataSource _remote;
-
   OutfitRepositoryImpl({
-    required OutfitLocalDataSource local,
-    required OutfitRemoteDataSource remote,
-  })  : _local = local,
-        _remote = remote;
+    required this.local,
+    required this.remote,
+  });
 
-  // ── Outfits (from local static source) ───────────────────
+  final OutfitLocalDataSource local;
+  final OutfitRecommendRemoteDataSource remote;
+
+  // ── Outfits ───────────────────────────────────────────
   @override
-  Future<List<OutfitItemEntity>> getOutfits({
+  Future<Result> getOutfits({
     required int page,
     required int pageSize,
-  }) async {
-    final models = await _local.getOutfits(page: page, pageSize: pageSize);
-    return models.map((m) => m.toEntity()).toList();
-  }
-
-  // ── Save / Unsave ─────────────────────────────────────────
-  @override
-  Future<void> saveItem({
-    required String userId,
-    required String itemId,
-    required String category,
   }) =>
-      _remote.saveItem(
-        userId: userId,
-        itemId: itemId,
-        category: category,
-      );
+      local.getOutfits(page: page, pageSize: pageSize);
+
+  // ── Save / Unsave ─────────────────────────────────────
+  @override
+  Future<Result> saveItem({required SavedItemModel outfit}) =>
+      remote.saveItem(outfit: outfit);
 
   @override
-  Future<void> unsaveItem({
-    required String userId,
-    required String itemId,
-  }) =>
-      _remote.unsaveItem(userId: userId, itemId: itemId);
+  Future<Result> unsaveItem({required SavedItemModel outfit}) =>
+      remote.unsaveItem(userId: outfit.userId, itemId: outfit.itemId);
 
-  // ── Saved items ───────────────────────────────────────────
+  // ── Saved items ───────────────────────────────────────
   @override
-  Future<List<SavedItemEntity>> getSavedItems(String userId) async {
-    final models = await _remote.getSavedItems(userId);
-    return models.map((m) => m.toEntity()).toList();
-  }
-
-  @override
-  Future<Set<String>> getSavedItemIds(String userId) =>
-      _remote.getSavedItemIds(userId);
+  Future<Result> getSavedItems(String userId) =>
+      remote.getSavedItems(userId);
 }

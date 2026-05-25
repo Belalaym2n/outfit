@@ -1,6 +1,5 @@
 class AppKeys{
-  static const String companyName="company";
-  static const String adminId="adminId";
+   static const String adminId="adminId";
   static const String address="address";
   static const String name="name";
   static const String taken="userId";

@@ -24,9 +24,8 @@ class MyApp extends StatelessWidget {
       // navigatorKey: AppLoadingController.navigatorKey,
 
       theme: ThemeData(
-        brightness: Brightness.dark,
-         splashFactory: NoSplash.splashFactory,
-        highlightColor: Colors.transparent,
+        brightness: Brightness.light,
+         highlightColor: Colors.transparent,
       ),
       debugShowCheckedModeBanner: false,
       // initialRoute: "/",

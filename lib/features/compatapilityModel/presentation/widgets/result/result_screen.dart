@@ -1,5 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:graduation_proj/features/compatapilityModel/presentation/manager/outfit_bloc.dart';
+import 'package:graduation_proj/features/compatapilityModel/presentation/manager/outfit_states.dart';
 
 import '../../../../../core/sharedWidgets/animations/fade_slide.dart';
 import '../../../../../core/utils/app_colors.dart';
@@ -77,7 +82,11 @@ class _ResultScreenState extends State<ResultScreen>
       duration: const Duration(milliseconds: 240),
     );
   }
-  double get _finalScorePercent => widget.result.originalScore * 100;
+  double get _finalScorePercent =>
+      widget.result.improvedScore>=widget.result.originalScore?
+
+      widget.result.improvedScore * 100:
+      widget.result.originalScore * 100;
   void _setupAnimations() {
 
     Animation<double> fade(double s, double e) => CurvedAnimation(
@@ -179,6 +188,8 @@ class _ResultScreenState extends State<ResultScreen>
             ),
             SliverToBoxAdapter(
               child: ScoreSection(
+                improvedScore: widget.result.improvedScore,
+                originalScore: widget.result.originalScore,
                 hPad: hPad,
                 circleScale: _scoreCircleScale,
                 progress: _scoreProgress,
@@ -193,27 +204,32 @@ class _ResultScreenState extends State<ResultScreen>
                 slide: _feedbackSlide,
                 child: FeedbackCard(
                   hPad: hPad,
-                  highlights: widget.result.highlights,
-                  isCompatible: widget.result.isCompatible,
+
+                  highlights: widget.result.highlights
+                      .map((e) => e.toInt())
+                      .toList(),                isCompatible: widget.result.isCompatible,
                 ),
               ),
             ),
             // Render one ProblemSection per replacement suggestion
-            if (widget.result.replacements.isNotEmpty)
-              ...widget.result.replacements.entries.map(
-                (entry) => SliverToBoxAdapter(
-                  child: FadeSlide(
-                    fade: _problemFade,
-                    slide: _problemSlide,
-                    child:ProblemSection(
-                      hPad: hPad,
-                      itemLabel: entry.key,
-                      base64Image: entry.value,
-                      suggestion: "AI Suggestion",
-                    ),
-                  ),
-                ),
-              ),
+            // if (widget.result.replacements.isNotEmpty)
+            //   ...widget.result.replacements.entries.map(
+            //     (entry) => SliverToBoxAdapter(
+            //       child: FadeSlide(
+            //         fade: _problemFade,
+            //         slide: _problemSlide,
+            //         child:ProblemSection(
+            //           currentImage: ,
+            //           hPad: hPad,
+            //           itemLabel:entry.key=="Shoe"?"Shoes": entry.key,
+            //           base64Image: entry.value,
+            //           suggestion: "Outfix AI Suggestion",
+            //         ),
+            //       ),
+            //     ),
+            //   ),
+
+            showIssueDetected(hPad),
             SliverToBoxAdapter(
               child: FadeSlide(
                 fade: _ctaFade,
@@ -231,5 +247,52 @@ class _ResultScreenState extends State<ResultScreen>
         ),
       ),
     );
+  }
+
+  showIssueDetected(double hPad) {
+    final bloc = context.read<OutfitBloc>(); // 🔥 هنا
+    final images = bloc.state.images;
+
+    return SliverList(
+      delegate: SliverChildListDelegate(
+        widget.result.replacements.entries.map((entry) {
+
+          final index = _getIndexFromLabel(entry.key);
+
+          Uint8List? currentImage;
+          final file = images[index];
+
+          if (file != null) {
+            currentImage = File(file.path).readAsBytesSync();
+          }
+
+          return FadeSlide(
+            fade: _problemFade,
+            slide: _problemSlide,
+            child: ProblemSection(
+              currentImage: currentImage,       // من bloc
+              base64Image: entry.value,         // 🔥 من .value
+              hPad: hPad,
+              itemLabel: entry.key == "Shoe" ? "Shoes" : entry.key,
+              suggestion: "Outfix AI Suggestion",
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }   int _getIndexFromLabel(String label) {
+    switch (label.toLowerCase()) {
+      case 'top':
+        return 0;
+      case 'bottom':
+        return 1;
+      case 'shoes':
+      case 'shoe':
+        return 2;
+      case 'bag':
+        return 3;
+      default:
+        return 4;
+    }
   }
 }

@@ -72,7 +72,7 @@ abstract final class TeamData {
 
     TeamMember(
       id: 'Rofidah',
-      name: 'Rofidah',
+      name: 'Rofidah Waleed',
       role: 'AI Engineer',
       accentTag: 'AI',
       about:
@@ -84,13 +84,12 @@ abstract final class TeamData {
       'Developed and optimized the AI model responsible for outfit evaluation. Structured the end-to-end pipeline, '
           'from data processing to scoring logic, ensuring accurate and interpretable outputs. Worked closely with backend '
           'and mobile teams to integrate AI results seamlessly into the user experience.',
-      linkedInUrl: 'https://linkedin.com/in/placeholder-aref',
-      whatsAppNumber: '201000000003',
+      linkedInUrl: 'https://www.linkedin.com/in/rofaidah-waleed?utm_source=share_via&utm_content=profile&utm_medium=member_ios',
+      whatsAppNumber: '01032195366',
     ),
-
     TeamMember(
       id: 'Misk',
-      name: 'Misk',
+      name: 'Misk Mohamed',
       role: 'AI Engineer',
       accentTag: 'AI',
       about:
@@ -102,12 +101,12 @@ abstract final class TeamData {
           'visual clarity, and consistency across screens. Collaborated with developers to ensure the interface effectively '
           'communicates AI outputs while maintaining a smooth and engaging user experience.',
       linkedInUrl: 'https://linkedin.com/in/placeholder-meska',
-      whatsAppNumber: '201000000004',
+      whatsAppNumber: '20100000000007',
     ),
 
     TeamMember(
       id: 'mostafa',
-      name: 'Mostafa',
+      name: 'Mostafa Saad',
       role: 'Backend Developer',
       accentTag: 'Backend',
       about:
@@ -119,7 +118,7 @@ abstract final class TeamData {
           'services and components, reducing friction in development and improving system reliability. Worked alongside team members '
           'to maintain a cohesive and well-functioning architecture.',
       linkedInUrl: 'https://linkedin.com/in/placeholder-mostafa',
-      whatsAppNumber: '201000000005',
+      whatsAppNumber: '20100000000007',
     ),
 
     TeamMember(
@@ -136,25 +135,22 @@ abstract final class TeamData {
           'accuracy, consistency, and reliability. Collaborated with AI and backend teams to identify issues, improve model '
           'performance, and enhance overall system stability.',
       linkedInUrl: 'https://linkedin.com/in/placeholder-mohamed-mostafa',
-      whatsAppNumber: '201000000006',
+      whatsAppNumber: '+20100000000007',
     ),
 
     TeamMember(
       id: 'badawy',
-      name: 'Ahmed Badawy Badawy',
-      role: 'Software Contributor',
-      accentTag: 'Dev',
+      name: 'Ahmed Badawy ',
+      role: 'Flutter Developer',
+      accentTag: 'Flutter Dev',
       about:
-      'Ahmed Badawy is a multidisciplinary contributor with a strong focus on product presentation and user experience. '
-          'In Outfit AI, he played a key role in shaping how the product is structured and communicated, ensuring a clear, '
-          'professional, and impactful representation of the system.',
+      'Ahmed Badawy is a Flutter developer with a good understanding of building clean and responsive mobile interfaces. '
+          'In Outfit AI, he supported the development process by working on UI components .',
       roleInProject:
-      'Organized project assets and maintained a clear structure for development resources, improving team efficiency. '
-          'Designed and delivered professional presentations to communicate the product vision effectively. Contributed to UI/UX '
-          'direction by refining layouts, enhancing visual consistency, and suggesting improved user interaction flows in collaboration '
-          'with the development team.',
+      'Contributed to developing UI screens using Flutter and ensured basic responsiveness across different devices. '
+          'Assisted in refining user interactions and collaborated with the team to maintain a consistent design approach throughout the app.',
       linkedInUrl: 'https://linkedin.com/in/placeholder-badawy',
-      whatsAppNumber: '201000000007',
+      whatsAppNumber: '20100000000007',
     ),
   ];
 

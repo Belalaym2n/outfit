@@ -74,6 +74,8 @@ class AppColors{
   static const savedRed   = Color(0xFFE8645A);
   static const cardBg     = Color(0xFF1C1A22);
   static const cardBorder = Color(0xFF2A2730);
+
+  static const Color error = Color(0xFFE53935); // or your brand red
 }
 
 

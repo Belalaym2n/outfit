@@ -33,7 +33,7 @@ class EyebrowBadge extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           const Text(
-            'AI STYLE ENGINE — ACTIVE',
+            'OutFix AI ENGINE — ACTIVE',
             style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w600,

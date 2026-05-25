@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:graduation_proj/core/sharedWidgets/main_wrapper.dart';
 import 'package:graduation_proj/core/validations/auth_validation.dart';
 import 'package:graduation_proj/features/bottom_nav/bottom_nav.dart';
 import 'package:graduation_proj/features/forgetPass/presentation/widgets/email_sent_success.dart';
@@ -192,134 +193,136 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreenItem>
     final hPad = mq.size.width >= 600 ? 48.0 : 24.0;
 
     print(widget.state );
-    return Scaffold(
-      backgroundColor: AppColors.bg,
-      body: Form(
-        key: _formKey,
-        child: Stack(
-          children: [
-            AmbientBg(float1: _bg1, float2: _bg2),
+    return MainWrapper(
+      childWidget: Scaffold(
+        backgroundColor: AppColors.bg,
+        body: Form(
+          key: _formKey,
+          child: Stack(
+            children: [
+              AmbientBg(float1: _bg1, float2: _bg2),
 
-            SafeArea(
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                padding: EdgeInsets.fromLTRB(hPad, 16, hPad, 32),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // ── Back + wordmark
-                    FadeSlide(
-                      fade: _logoFade,
-                      slide: _logoSlide,
-                      child: Row(
-                        children: [
-                          BackBtn(onTap: () => Navigator.pop(context)),
-                          const SizedBox(width: 12),
-                          const Wordmark(),
-                        ],
-                      ),
-                    ),
-
-                    SizedBox(height: Sp.lg),
-                    // ── SUCCESS STATE — overlays entire form area
-                    if (widget.state.status ==
-                        LoginStatus.sendEmailSuccess) ...[
-                      navigateToSuccess()
-                    ] else ...[
+              SafeArea(
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  padding: EdgeInsets.fromLTRB(hPad, 16, hPad, 32),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // ── Back + wordmark
                       FadeSlide(
                         fade: _logoFade,
                         slide: _logoSlide,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 5,
+                        child: Row(
+                          children: [
+                            BackBtn(onTap: () => Navigator.pop(context)),
+                            const SizedBox(width: 12),
+                            const Wordmark(),
+                          ],
+                        ),
+                      ),
+
+                      SizedBox(height: Sp.lg),
+                      // ── SUCCESS STATE — overlays entire form area
+                      if (widget.state.status ==
+                          LoginStatus.sendEmailSuccess) ...[
+                        navigateToSuccess()
+                      ] else ...[
+                        FadeSlide(
+                          fade: _logoFade,
+                          slide: _logoSlide,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 5,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColors.divider,
+                              borderRadius: BorderRadius.circular(40),
+                            ),
+                            child: Text('RESET PASSWORD', style: T.caption),
                           ),
-                          decoration: BoxDecoration(
-                            color: AppColors.divider,
-                            borderRadius: BorderRadius.circular(40),
+                        ),
+
+                        const SizedBox(height: 14),
+
+                        FadeSlide(
+                          fade: _titleFade,
+                          slide: _titleSlide,
+                          child: Text('Reset\nPassword', style: T.display),
+                        ),
+
+                        const SizedBox(height: 10),
+
+                        FadeSlide(
+                          fade: _subtitleFade,
+                          slide: _subtitleSlide,
+                          child: Text(
+                            'Enter your email address and we\'ll send you a link to reset your password.',
+                            style: T.subtitle,
                           ),
-                          child: Text('RESET PASSWORD', style: T.caption),
                         ),
-                      ),
 
-                      const SizedBox(height: 14),
+                        const SizedBox(height: Sp.lg),
 
-                      FadeSlide(
-                        fade: _titleFade,
-                        slide: _titleSlide,
-                        child: Text('Reset\nPassword', style: T.display),
-                      ),
-
-                      const SizedBox(height: 10),
-
-                      FadeSlide(
-                        fade: _subtitleFade,
-                        slide: _subtitleSlide,
-                        child: Text(
-                          'Enter your email address and we\'ll send you a link to reset your password.',
-                          style: T.subtitle,
+                        FadeSlide(
+                          fade: _fieldFade,
+                          slide: _fieldSlide,
+                          child: CustomTextField(
+                            controller: _emailCtrl,
+                            validator: AuthValidator.validateEmail,
+                            label: 'Email address',
+                            hint: 'you@example.com',
+                            keyboardType: TextInputType.emailAddress,
+                            textInputAction: TextInputAction.done,
+                          ),
                         ),
-                      ),
 
-                      const SizedBox(height: Sp.lg),
+                        const SizedBox(height: Sp.md),
 
-                      FadeSlide(
-                        fade: _fieldFade,
-                        slide: _fieldSlide,
-                        child: CustomTextField(
-                          controller: _emailCtrl,
-                          validator: AuthValidator.validateEmail,
-                          label: 'Email address',
-                          hint: 'you@example.com',
-                          keyboardType: TextInputType.emailAddress,
-                          textInputAction: TextInputAction.done,
+                        // ── Send link CTA
+                        FadeSlide(
+                          fade: _btnFade,
+                          slide: _btnSlide,
+                          child: PrimaryBtn(
+                            label: 'Send Reset Link',
+                            scale: _btnScale,
+                            onTap: _onSendLink,
+                          ),
                         ),
-                      ),
 
-                      const SizedBox(height: Sp.md),
+                        const SizedBox(height: Sp.md),
 
-                      // ── Send link CTA
-                      FadeSlide(
-                        fade: _btnFade,
-                        slide: _btnSlide,
-                        child: PrimaryBtn(
-                          label: 'Send Reset Link',
-                          scale: _btnScale,
-                          onTap: _onSendLink,
-                        ),
-                      ),
-
-                      const SizedBox(height: Sp.md),
-
-                      // ── Back to login link
-                      FadeTransition(
-                        opacity: _footerFade,
-                        child: Center(
-                          child: GestureDetector(
-                            onTap: () => Navigator.pop(context),
-                            child: RichText(
-                              text: TextSpan(
-                                style: T.bodySmall,
-                                children: [
-                                  const TextSpan(
-                                    text: 'Remember your password?  ',
-                                  ),
-                                  TextSpan(
-                                    text: 'Sign In',
-                                    style: T.link.copyWith(fontSize: 14),
-                                  ),
-                                ],
+                        // ── Back to login link
+                        FadeTransition(
+                          opacity: _footerFade,
+                          child: Center(
+                            child: GestureDetector(
+                              onTap: () => Navigator.pop(context),
+                              child: RichText(
+                                text: TextSpan(
+                                  style: T.bodySmall,
+                                  children: [
+                                    const TextSpan(
+                                      text: 'Remember your password?  ',
+                                    ),
+                                    TextSpan(
+                                      text: 'Sign In',
+                                      style: T.link.copyWith(fontSize: 14),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           ),
                         ),
-                      ),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

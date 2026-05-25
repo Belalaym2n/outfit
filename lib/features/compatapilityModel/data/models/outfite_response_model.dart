@@ -18,8 +18,9 @@ class OutfitResponseModel {
       originalScore: (json['original_score'] ?? 0).toDouble(),
       improvedScore: (json['improved_score'] ?? 0).toDouble(),
       isCompatible: json['is_compatible'] ?? false,
-      highlights: List<double>.from(json['highlights'] ?? []),
-      replacements: (json['replacements'] as Map<String, dynamic>? ?? {})
+      highlights: (json['highlights'] as List? ?? [])
+          .map((e) => (e as num).toDouble())
+          .toList(),      replacements: (json['replacements'] as Map<String, dynamic>? ?? {})
           .map((k, v) => MapEntry(k, v.toString())),
     );
   }

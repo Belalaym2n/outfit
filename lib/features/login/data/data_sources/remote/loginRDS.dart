@@ -5,5 +5,5 @@ abstract class LoginRDS {
   Future<Result> login(LoginModel model);
 
   Future<Result> sendPasswordResetEmail(String email); // ✅
-  Future<Result> saveUserData(LoginModel user); // ✅
+  // Future<Result> saveUserData(UserModel user); // ✅
 }

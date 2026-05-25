@@ -3,6 +3,7 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:graduation_proj/core/utils/app_constants.dart';
 
 import '../../core/cahsing/app_storage_service.dart';
 import '../../core/utils/app_colors.dart';
@@ -31,25 +32,34 @@ class  DrawerUserCard extends StatelessWidget {
         const SizedBox(width: 12),
 
         // Name + email
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children:   [
-            Text(
-              name,
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w700,
-                color:AppColors.textHigh,
-                letterSpacing: -0.3,
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                name,
+                maxLines: 1, // 👈 مهم
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textHigh,
+                  letterSpacing: -0.3,
+                ),
               ),
-            ),
-            SizedBox(height: 2),
-            Text(
-              email,
-              style: TextStyle(fontSize: 12, color:AppColors.textLow),
-            ),
-          ],
-        ),
+              SizedBox(height: 2),
+              Text(
+                email,
+                maxLines: 1, // 👈 مهم
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: AppColors.textLow,
+                ),
+              ),
+            ],
+          ),
+        )
       ],
     );
   }

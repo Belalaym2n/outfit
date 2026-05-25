@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_zoom_drawer/flutter_zoom_drawer.dart';
 import 'package:graduation_proj/core/sharedWidgets/Buttons/primary_buttons.dart';
 import 'package:graduation_proj/core/sharedWidgets/widgets/app_name.dart';
+import 'package:graduation_proj/features/recommendedItem/presentation/pages/fake.dart';
 
 import '../../../core/sharedWidgets/animations/fade_slide.dart';
 import '../../../core/sharedWidgets/bg_screen.dart';
@@ -11,7 +12,8 @@ import '../../../core/sharedWidgets/text_styles.dart';
 import '../../../core/utils/app_colors.dart';
 import '../../../core/utils/app_constants.dart';
 import '../../compatapilityModel/presentation/pages/request_to_recommend.dart' hide T;
-import '../../recommendedItem/presentation/pages/recommend_items.dart';
+   import '../../recommendedItem/presentation/pages/outfit_items_page.dart';
+import '../../recommendedItem/presentation/widgets/fullOutfit/full_outfit_item.dart';
 import '../data/models/feature_models.dart';
 import '../widgets/header_section.dart';
 import '../widgets/screenItems/feature_section.dart';
@@ -157,6 +159,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     _buttonController.dispose();
     super.dispose();
   }
+  // List<FullOutfitModel> _outfits = FullOutfitModel.samples;
 
   @override
   Widget build(BuildContext context) {
@@ -165,9 +168,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     final hPad = isTablet ? 48.0 : 24.0;
 
     return Scaffold(
+
       appBar: AppBar(
         backgroundColor: AppColors.bg,
         toolbarHeight: 0,
+        elevation: 0,
+
       ),
       backgroundColor: AppColors.bg,
       body: Stack(
@@ -179,7 +185,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             physics: const BouncingScrollPhysics(),
             slivers: [
               SliverToBoxAdapter(child: _TopBar(hPad: hPad)),
-
+              //
               SliverToBoxAdapter(
                 child: HeaderSection(
                   hPad: hPad,
@@ -228,17 +234,29 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 ),
               ),
 
-
-
               SliverToBoxAdapter(
                 child: const SizedBox(height: 60),
               ),
 
               SliverToBoxAdapter(
-                child: const RecommendedSection(),
+                child: const SizedBox(height: 60),
+              ),
+              // // SliverToBoxAdapter(
+              // //   child:      FullOutfitShowcase(
+              // //     outfits: OutfitStaticData.all,
+              // //     onSaveToggle: (id) => setState(() {
+              // //       final idx = _outfits.indexWhere((e) => e.id == id);
+              // //       if (idx != -1) _outfits[idx].saved = !_outfits[idx].saved;
+              // //     }),
+              // //   ),
+              // // ),
+
+
+              SliverToBoxAdapter(
+                child: const OutfitItemsPage(),
               ),
               SliverToBoxAdapter(
-                child: const SizedBox(height: 60),
+                child: const SizedBox(height: 100),
               ),],
           ),
         ],

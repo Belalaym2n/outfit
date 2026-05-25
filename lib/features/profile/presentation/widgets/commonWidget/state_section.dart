@@ -27,11 +27,11 @@ class StatsSection extends StatelessWidget {
       label: 'Avg. Score',
       icon: Icons.auto_awesome_rounded
       ),
-      (
-      value: userModel.saved.toString(),
-      label: 'Saved',
-      icon: Icons.bookmark_rounded
-      ),
+      // (
+      // value: userModel.saved.toString(),
+      // label: 'Saved',
+      // icon: Icons.bookmark_rounded
+      // ),
     ];
   }
 

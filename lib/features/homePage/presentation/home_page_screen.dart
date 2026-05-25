@@ -30,10 +30,10 @@ class HomePageScreen extends StatelessWidget {
       angle:                       -10.0,
       drawerShadowsBackgroundColor: const Color(0xFFD8D6D0),
       slideWidth:                  MediaQuery.sizeOf(context).width * 0.72,
-      // Replace with your real HomePage widget:
-      mainScreen:                PlaceholderMainScreen(ctrl: ctrl),
+       mainScreen:                PlaceholderMainScreen(ctrl: ctrl),
       menuScreen:                  BuildMenuScreen(
         zoomCtrl:     ctrl,
+
         isMobile:     true,
         onNavigate:   (screen) {
           Navigator.push(context, FadeScaleRoute(page: screen));

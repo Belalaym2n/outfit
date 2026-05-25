@@ -111,15 +111,25 @@ class _TeamMemberScreenState extends State<TeamMemberScreen>
     final url = widget.member.linkedInUrl;
     if (url == null) return;
     final uri = Uri.parse(url);
-    if (await canLaunchUrl(uri)) await launchUrl(uri);
-  }
+    try {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } catch (e) {
+      print("Error opening LinkedIn: $e");
+    }  }
 
   Future<void> _openWhatsApp() async {
     final number = widget.member.whatsAppNumber;
-    if (number == null) return;
-    final uri = Uri.parse(widget.member.whatsAppUrl);
-    if (await canLaunchUrl(uri)) {
+    if (number == null || number.isEmpty) return;
+
+    // شيل أي + أو مسافات احتياطي
+    final cleanNumber = number.replaceAll('+', '').replaceAll(' ', '');
+
+    final uri = Uri.parse("https://wa.me/$cleanNumber");
+
+    try {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } catch (e) {
+      print("Error opening WhatsApp: $e");
     }
   }
 

@@ -1,12 +1,20 @@
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:graduation_proj/features/homePage/presentation/home_page_screen.dart';
 import 'package:graduation_proj/features/savedItems/presentation/pages/saved_items_presentation.dart';
 import 'package:graduation_proj/features/support/presentation/pages/support_screen.dart';
 
+import '../../core/cahsing/app_storage_service.dart';
+import '../../core/intialization/init_di.dart';
 import '../homePage/presentation/home_page.dart';
+import '../outfitHistory/presentation/manager/events.dart';
+import '../outfitHistory/presentation/manager/outfit_history_bloc.dart';
+import '../outfitHistory/presentation/pages/outfit_history_screen.dart';
 import '../profile/presentation/pages/profile_screen.dart';
 import '../profile/presentation/pages/profile_screen_page.dart';
+import '../recommendedItem/presentation/manager/events.dart';
+import '../recommendedItem/presentation/manager/outfit_bloc.dart';
 import 'custom_floatin_bottom_nav.dart';
 import 'nav_model.dart' show FloatingNavItem;
 
@@ -24,16 +32,27 @@ class _DemoPageState extends State<BottomNav> {
    static const List<FloatingNavItem> _navItems = [
     FloatingNavItem(icon: Icons.home_rounded, label: 'Home'),
      FloatingNavItem(icon: Icons.bookmark_rounded, label: 'Saved'),
+     FloatingNavItem(icon: Icons.history_edu_outlined, label: 'History'),
      FloatingNavItem(icon: Icons.person, label: 'Profile'),
 
    ];
 
   // Each tab has its own body widget
-  static const List<Widget> _pages = [
+  static   final List<Widget> _pages = [
     HomePageScreen(),
 
-    SavedOutfitsScreen( ),
-    ProfileScreenPage(),
+  BlocProvider(
+  create: (_) => getIt<OutfitBloc>()
+  ..add(LoadOutfitsEvent(
+  userId: AppStorageService.instance.getEmail(),
+  )),
+  child: SavedItemsScreen(),
+  ),
+    BlocProvider(
+      create: (_) => getIt<OutfitHistoryBloc>()
+        ..add(const FetchFirstPageEvent()),
+      child: const OutfitHistoryScreen(),
+    ),    ProfileScreenPage(),
     ];
 
   @override

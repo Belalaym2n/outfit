@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import '../../domain/use_cases/analyze_outfit_use_case.dart';
 import 'outfit_events.dart';
@@ -29,9 +30,11 @@ class OutfitBloc extends Bloc<OutfitEvent, OutfitState> {
   }
 
   bool _validate(List<XFile?> images) {
-    return images.where((img) => img != null).length >= 5;
-  }
+       final hasTop = images[0] != null;
+      final hasBottom = images[1] != null;
 
+      return hasTop && hasBottom;
+    }
   Future<XFile?> _pickImage() async {
     return await _picker.pickImage(
       source:       ImageSource.gallery,
@@ -47,19 +50,28 @@ class OutfitBloc extends Bloc<OutfitEvent, OutfitState> {
       AddImageEvent event,
       Emitter<OutfitState> emit,
       ) async {
-    // Open image picker if no image provided directly
+    final hasPermission = await _requestGalleryPermission();
+
+    if (!hasPermission) {
+      emit(state.copyWith(
+        status: OutfitStatus.error,
+        errorMessage: 'Permission denied',
+      ));
+      return;
+    }
+
     final XFile? picked = await _pickImage();
-    if (picked == null) return; // User cancelled
+    if (picked == null) return;
 
     final updated = _updatedImages(state.images, event.index, picked);
+
     emit(state.copyWith(
-      status:      OutfitStatus.editing,
-      images:      updated,
-      isValid:     _validate(updated),
-      clearError:  true,
+      status: OutfitStatus.editing,
+      images: updated,
+      isValid: _validate(updated),
+      clearError: true,
     ));
   }
-
   Future<void> _onRemoveImage(
       RemoveImageEvent event,
       Emitter<OutfitState> emit,
@@ -110,8 +122,10 @@ class OutfitBloc extends Bloc<OutfitEvent, OutfitState> {
     // Validate first
     if (!_validate(state.images)) {
       emit(state.copyWith(
+
         status:       OutfitStatus.error,
-        errorMessage: 'Please add all outfit items: Top, Bottom, Shoes, Accessory, and Bag.',      ));
+        errorMessage:'Please add at least Top and Bottom.',
+        ));
       return;
     }
 
@@ -149,5 +163,17 @@ class OutfitBloc extends Bloc<OutfitEvent, OutfitState> {
 
   void _onReset(ResetEvent event, Emitter<OutfitState> emit) {
     emit(OutfitState.initial());
+  }
+
+  Future<bool> _requestGalleryPermission() async {
+    final status = await Permission.photos.request();
+
+    if (status.isGranted) return true;
+
+    if (status.isPermanentlyDenied) {
+      await openAppSettings();
+    }
+
+    return false;
   }
 }

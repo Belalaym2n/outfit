@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:graduation_proj/core/sharedWidgets/main_wrapper.dart';
 import 'package:graduation_proj/core/utils/app_colors.dart';
 import 'package:graduation_proj/features/profile/presentation/pages/profile_screen.dart';
 import 'package:skeletonizer/skeletonizer.dart';
@@ -33,7 +34,7 @@ class _ProfileScreenState extends State<ProfileScreenPage> {
     return Scaffold(
       appBar: AppBar(toolbarHeight: 0, backgroundColor: Colors.white),
       backgroundColor: AppColors.surface,
-      body: BlocProvider(
+      body:MainWrapper(childWidget:  BlocProvider(
         create: (_) =>
             ProfileBloc(getProfileUseCase: getIt<GetProfileUseCase>())
               ..add(ProfileFetchRequested()),
@@ -61,7 +62,7 @@ class _ProfileScreenState extends State<ProfileScreenPage> {
             // 🔥 Loading Overlay (Skeleton أو Loader)
           },
         ),
-      ),
+      )),
     );
   }
 }

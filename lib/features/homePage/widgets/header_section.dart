@@ -89,7 +89,7 @@ class HeaderSection extends StatelessWidget {
           FadeSlide(
             fade: ctaFade, slide: ctaSlide,
             child: PrimaryBtn(
-              label: 'Start AI Analysis',
+              label: 'Start OutFix AI Analysis',
               scale: buttonScale,
               onTap: () {
                 Navigator.push(

@@ -13,8 +13,11 @@ class ProblemSection extends StatelessWidget {
     required this.itemLabel,
     required this.base64Image,
     required this.suggestion,
-  });
+      this.currentImage,  this.currentImageUrl, // 🔥
 
+  });
+  final String? currentImageUrl; // 🔥 جديد
+  final Uint8List? currentImage;
   final String? base64Image;
   final double hPad;
   final String itemLabel;
@@ -23,6 +26,8 @@ class ProblemSection extends StatelessWidget {
   IconData _iconFor(String key) {
     switch (key.toLowerCase()) {
       case 'shoe':
+        return Icons.directions_walk_rounded;
+      case 'shoes':
         return Icons.directions_walk_rounded;
       case 'top':
         return Icons.checkroom_rounded;
@@ -47,6 +52,7 @@ class ProblemSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print("widget labe; ${itemLabel}");
     final Uint8List? decodedImage = _decodeBase64(base64Image);
 
     return Padding(
@@ -54,36 +60,10 @@ class ProblemSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Container(
-                padding:
-                const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: AppColors.ink.withOpacity(0.07),
-                  borderRadius: BorderRadius.circular(30),
-                  border: Border.all(color: AppColors.ink.withOpacity(0.15)),
-                ),
-                child: const Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.warning_amber_rounded,
-                        size: 13, color: AppColors.textHigh),
-                    SizedBox(width: 5),
-                    Text(
-                      'Issue Detected',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.textHigh,
-                        letterSpacing: 0.1,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
+
+          // ),
+
+
           const SizedBox(height: 10),
 
           Text(itemLabel, style: T.heading),
@@ -116,11 +96,14 @@ class ProblemSection extends StatelessWidget {
               children: [
                 Expanded(
                   child: ComparisonCard(
+
+                    imageUrl: currentImageUrl,
                     label: 'Current',
                     icon: _iconFor(itemLabel),
                     caption: 'Current $itemLabel',
+
                     highlighted: false,
-                    imageBytes: null,
+                    imageBytes: currentImage,
                   ),
                 ),
 

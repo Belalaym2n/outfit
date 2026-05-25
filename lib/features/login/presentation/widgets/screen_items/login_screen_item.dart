@@ -1,35 +1,3 @@
-// ═══════════════════════════════════════════════════════════════
-//  AI OUTFIT RECOMMENDATION — AUTHENTICATION SCREENS
-//  Login · Sign Up · Forgot Password
-//  Theme: Warm Off-White · Luxury Minimal · Apple × Linear SaaS
-// ═══════════════════════════════════════════════════════════════
-//
-//  ANIMATION SYSTEM OVERVIEW
-//  ──────────────────────────────────────────────────────────────
-//  Every screen shares the same 3-controller pattern:
-//
-//  1. _entranceCtrl (1400ms)
-//     Orchestrates the entire page entrance via Interval() windows.
-//     Title → subtitle → fields (staggered) → CTA → footer.
-//     A single controller = a single dispose call. Clean.
-//
-//  2. _bgCtrl (7000ms, repeat-reverse)
-//     Drives slow ambient background shape float.
-//     Runs independently — never competes with entrance.
-//     Max opacity 0.04 so shapes are felt, not seen.
-//
-//  3. _btnCtrl (220ms)
-//     TweenSequence: compress (1.0→0.95) → spring (0.95→1.02)
-//     → settle (1.02→1.0). Mimics physical button feedback.
-//
-//  Navigation between screens uses a custom SlidePageRoute
-//  that translates the incoming screen from bottom-right,
-//  creating a smooth lateral flow between auth states.
-//
-//  The  CustomTextField widget owns its own FocusNode and
-//  AnimatedContainer that scales the border/shadow on focus.
-//  This keeps field animations localised and efficient.
-// ═══════════════════════════════════════════════════════════════
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -171,11 +139,11 @@ class _LoginScreenItemState extends State<LoginScreenItem>
 
   @override
   void dispose() {
-    // NEW: dispose text controllers
-    _emailCtrl.dispose();
+     _emailCtrl.dispose();
     _passwordCtrl.dispose();
 
     _entranceCtrl.dispose();
+    _bgCtrl.dispose();
     _bgCtrl.dispose();
     _btnCtrl.dispose();
     super.dispose();
@@ -352,6 +320,7 @@ class _LoginScreenItemState extends State<LoginScreenItem>
         scale: _btnScale,
         onTap: () {
           if (_formKey.currentState!.validate()) {
+            print("object");
             context.read<LoginBloc>().add(
               LoginButtonPressed(
                 model: LoginModel(

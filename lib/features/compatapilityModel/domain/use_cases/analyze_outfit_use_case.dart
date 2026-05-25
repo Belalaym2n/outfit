@@ -10,10 +10,7 @@ class AnalyzeOutfitUseCase {
 
   Future<Result> call(List<XFile?> images) async {
     // Domain-level validation before hitting network
-    final filledSlots = images.where((img) => img != null).length;
-    if (filledSlots < 3) {
-      return Result.failure('Please add at least your Top, Bottom, and Shoes.');
-    }
+
 
     final result = await repo.analyzeOutfit(images);
     if (result.isSuccess) return Result.success(result.data);

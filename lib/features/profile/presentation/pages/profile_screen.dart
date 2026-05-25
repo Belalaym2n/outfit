@@ -166,10 +166,16 @@ class _ProfileScreenState extends State<ProfileScreen>
       end: -12,
     ).animate(CurvedAnimation(parent: _bgCtrl, curve: Curves.easeInOut));
 
-    // ── Progress bar (0 → 68%) ───────────────────────────────────
-    _progressValue = Tween<double>(begin: 0.0, end: 0.68).animate(
-      CurvedAnimation(parent: _progressCtrl, curve: Curves.easeInOutCubic),
-    );
+    _progressValue = Tween<double>(
+      begin: 0.0,
+      end: (widget.userModel.avgScore / 100).clamp(0.0, 1.0),
+    ).animate(
+      CurvedAnimation(
+        parent: _progressCtrl,
+        curve: Curves.easeInOutCubic,
+      ),
+
+     );
 
     // ── Button spring: compress → overshoot → settle ─────────────
     _btnScale = TweenSequence<double>([

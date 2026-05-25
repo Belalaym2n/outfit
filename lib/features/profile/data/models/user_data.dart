@@ -1,56 +1,38 @@
 class UserModel {
-  final String id;
-  final String name;
+   final String name;
   final String email;
-  final String badge;
-  final String? avatarUrl;
+
   final int analyses;
   final int avgScore;
-  final int saved;
-  final double journeyProgress;
-  final String journeyMessage;
+   final String journeyMessage;
 
   const UserModel({
-    required this.id,
-    required this.name,
+     required this.name,
     required this.email,
-    required this.badge,
-    this.avatarUrl,
-    required this.analyses,
+     required this.analyses,
     required this.avgScore,
-    required this.saved,
-    required this.journeyProgress,
-    required this.journeyMessage,
+     required this.journeyMessage,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
-      id: json['id']?.toString() ?? '',
-      name: json['name']?.toString() ?? '',
+       name: json['fullName']?.toString() ?? '',
       email: json['email']?.toString() ?? '',
-      badge: json['badge']?.toString() ?? 'AI Explorer',
-      avatarUrl: json['avatar_url']?.toString(),
-      analyses: (json['analyses'] as num?)?.toInt() ?? 0,
-      avgScore: (json['avg_score'] as num?)?.toInt() ?? 0,
-      saved: (json['saved'] as num?)?.toInt() ?? 0,
-      journeyProgress:
-      (json['journey_progress'] as num?)?.toDouble() ?? 0.0,
+        analyses: (json['totalAnalyses'] as num?)?.toInt() ?? 0,
+      avgScore: (json['averageScore'] as num?)?.toInt() ?? 0,
+
       journeyMessage: json['journey_message']?.toString() ?? '',
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
-      'name': name,
+       'name': name,
       'email': email,
-      'badge': badge,
-      'avatar_url': avatarUrl,
+
       'analyses': analyses,
       'avg_score': avgScore,
-      'saved': saved,
-      'journey_progress': journeyProgress,
-      'journey_message': journeyMessage,
+       'journey_message': journeyMessage,
     };
   }
 
@@ -68,22 +50,17 @@ class UserModel {
     String? journeyMessage,
   }) {
     return UserModel(
-      id: id ?? this.id,
-      name: name ?? this.name,
+       name: name ?? this.name,
       email: email ?? this.email,
-      badge: badge ?? this.badge,
-      avatarUrl: avatarUrl ?? this.avatarUrl,
       analyses: analyses ?? this.analyses,
       avgScore: avgScore ?? this.avgScore,
-      saved: saved ?? this.saved,
-      journeyProgress: journeyProgress ?? this.journeyProgress,
-      journeyMessage: journeyMessage ?? this.journeyMessage,
+       journeyMessage: journeyMessage ?? this.journeyMessage,
     );
   }
 
   // ✅ optional (بس بروفيشنال)
   @override
   String toString() {
-    return 'UserModel(id: $id, name: $name, email: $email)';
+    return 'UserModel(id:  , name: $name, email: $email)';
   }
 }

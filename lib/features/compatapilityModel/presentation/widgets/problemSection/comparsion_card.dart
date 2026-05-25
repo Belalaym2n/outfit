@@ -3,10 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:graduation_proj/core/utils/app_colors.dart';
 
 class ComparisonCard extends StatelessWidget {
-  const ComparisonCard({
+    ComparisonCard({
     super.key,
     required this.label,
-    required this.imageBytes,
+      this.imageBytes,
+      this.imageUrl,
     required this.caption,
     required this.icon,
     required this.highlighted,
@@ -17,13 +18,13 @@ class ComparisonCard extends StatelessWidget {
   final IconData icon;
   final String caption;
   final bool highlighted;
-
+  final String? imageUrl; // 🔥 جديد
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: highlighted ? AppColors.ink : AppColors.surfaceAlt,
+        color: highlighted ? AppColors.white : AppColors.surfaceAlt,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
           color: highlighted ? AppColors.ink : AppColors.divider,
@@ -40,28 +41,10 @@ class ComparisonCard extends StatelessWidget {
                   : AppColors.divider,
               borderRadius: BorderRadius.circular(10),
             ),
-            child: imageBytes != null
-                ? ClipRRect(
-                    borderRadius: BorderRadius.circular(10),
-                    child: Image.memory(
-                      imageBytes!,
-                      fit: BoxFit.cover,
-                      gaplessPlayback: true,
-                      filterQuality: FilterQuality.medium,
-                      errorBuilder: (context, error, stackTrace) {
-                        print("error ${error.toString()}");
-                        return Icon(
-                          Icons.broken_image,
-                          color: highlighted ? Colors.white : AppColors.textLow,
-                        );
-                      },
-                    ),
-                  )
-                : Icon(
-                    icon,
-                    color: highlighted ? Colors.white : AppColors.textLow,
-                    size: 28,
-                  ),
+            child:   ClipRRect(
+          borderRadius: BorderRadius.circular(10),
+      child: _buildImage(),
+    ),
           ),
 
           const SizedBox(height: 10),
@@ -72,7 +55,7 @@ class ComparisonCard extends StatelessWidget {
               fontSize: 10,
               fontWeight: FontWeight.w600,
               color: highlighted
-                  ? Colors.white.withOpacity(0.6)
+                  ? AppColors.surface3
                   : AppColors.textLow,
               letterSpacing: 0.8,
             ),
@@ -86,11 +69,51 @@ class ComparisonCard extends StatelessWidget {
             style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w600,
-              color: highlighted ? Colors.white : AppColors.textHigh,
+              color: highlighted ?AppColors.primaryColor : AppColors.textHigh,
             ),
           ),
         ],
       ),
     );
   }
+    Widget _buildImage() {
+      // 🔥 أولاً: لو bytes
+      if (imageBytes != null) {
+        return Image.memory(
+          imageBytes!,
+          fit: BoxFit.cover,
+          gaplessPlayback: true,
+          filterQuality: FilterQuality.medium,
+          errorBuilder: (_, __, ___) => _errorIcon(),
+        );
+      }
+
+      // 🔥 ثانياً: لو URL
+      if (imageUrl != null && imageUrl!.isNotEmpty) {
+        return Image.network(
+          imageUrl!,
+          fit: BoxFit.cover,
+          loadingBuilder: (context, child, progress) {
+            if (progress == null) return child;
+            return Center(
+              child: SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+            );
+          },
+          errorBuilder: (_, __, ___) => _errorIcon(),
+        );
+      }
+
+      // 🔥 fallback
+      return Center(child: Icon(icon, size: 28));
+    }
+    Widget _errorIcon() {
+      return Icon(
+        Icons.broken_image,
+        color: highlighted ? Colors.white : AppColors.textLow,
+      );
+    }
 }
