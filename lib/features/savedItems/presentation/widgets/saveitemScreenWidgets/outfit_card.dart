@@ -1,383 +1,317 @@
-
-import 'dart:math' as math;
-import 'dart:ui';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:graduation_proj/core/sharedWidgets/animations/bg_animation.dart';
-import 'package:graduation_proj/features/savedItems/presentation/pages/saved_item_details_screen.dart';
 
 import '../../../../../core/utils/app_colors.dart';
-import '../../pages/saved_items_presentation.dart';
-import '../savedItemDetailsWidgets/name_overly.dart';
-import '../savedItemDetailsWidgets/save_button.dart';
-import '../savedItemDetailsWidgets/score_padge.dart';
+import '../../../../../core/utils/app_constants.dart';
+import '../../../../recommendedItem/data/models/outfit_item_model.dart';
+import '../../../../recommendedItem/presentation/manager/outfit_states.dart';
 
-
-
-class OutfitGrid extends StatelessWidget {
-  const OutfitGrid({
-    required this.outfits,
-    required this.savedStates,
-    required this.cardScales,
-    required this.cardFades,
-    required this.cardSlides,
-    required this.dark,
-    required this.onToggleSave,
+class  SavedItemCard extends StatefulWidget {
+    SavedItemCard({
+    required this.item,
+    required this.cardHeight,
+    required this.saveStatus,
+    required this.onUnsave,
     required this.onTap,
+    this.isLoading=false,
   });
+bool isLoading;
+  final OutfitItemModel item;
+  final double cardHeight;
+  final SaveStatus saveStatus;
+  final VoidCallback onUnsave;
+  final VoidCallback onTap;
 
-  final List<OutfitModel>       outfits;
-  final List<bool>              savedStates;
-  final List<Animation<double>> cardScales;
-  final List<Animation<double>> cardFades;
-  final List<Animation<Offset>>  cardSlides;
-  final bool                    dark;
-  final ValueChanged<int>       onToggleSave;
-  final ValueChanged<int>       onTap;
+  @override
+  State<SavedItemCard> createState() => _SavedItemCardState();
+}
+
+class _SavedItemCardState extends State<SavedItemCard>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _enterCtrl;
+  late final Animation<double> _enterOpacity;
+  late final Animation<Offset> _enterSlide;
+
+  bool _pressed = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _enterCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 450),
+    );
+    _enterOpacity = Tween<double>(
+      begin: 0,
+      end: 1,
+    ).animate(CurvedAnimation(parent: _enterCtrl, curve: Curves.easeOut));
+    _enterSlide = Tween<Offset>(
+      begin: const Offset(0, 0.12),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(parent: _enterCtrl, curve: Curves.easeOutCubic));
+
+    WidgetsBinding.instance.addPostFrameCallback((_) => _enterCtrl.forward());
+  }
+
+  @override
+  void dispose() {
+    _enterCtrl.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    // Build Pinterest-like pairs with slight height variation
-    final leftCol  = <int>[];
-    final rightCol = <int>[];
-    for (var i = 0; i < outfits.length; i++) {
-      (i.isEven ? leftCol : rightCol).add(i);
-    }
+    final imageUrl = widget.item.images.isNotEmpty
+        ? widget.item.images.first
+        : null;
 
-    return SliverToBoxAdapter(
-      child: Row(
+    return AnimatedBuilder(
+      animation: _enterCtrl,
+      builder: (_, child) => FractionalTranslation(
+        translation: _enterSlide.value,
+        child: Opacity(opacity: _enterOpacity.value, child: child),
+      ),
+      child: GestureDetector(
+        onTap: widget.onTap,
+        onTapDown: (_) => setState(() => _pressed = true),
+        onTapUp: (_) => setState(() => _pressed = false),
+        onTapCancel: () => setState(() => _pressed = false),
+        child: AnimatedScale(
+          scale: _pressed ? 0.97 : 1.0,
+          duration: const Duration(milliseconds: 150),
+          child: Container(
+            height: widget.cardHeight,
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(22),
+              border: Border.all(color: AppColors.border, width: 1.0),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.ink.withOpacity(0.08),
+                  blurRadius: 18,
+                  spreadRadius: -4,
+                  offset: const Offset(0, 6),
+                ),
+              ],
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(22),
+              child: Stack(
+                children: [
+                  // ── Image ──────────────────────────────
+                  Positioned.fill(
+                    child: Hero(
+                      tag: 'outfit_img_${widget.item.id}',
+                      child: imageUrl != null
+                          ? Image.network(
+                        imageUrl,
+                        fit: BoxFit.cover,
+                        cacheWidth: 400,
+                        errorBuilder: (_, __, ___) => _CardPlaceholder(),
+                      )
+                          : _CardPlaceholder(),
+                    ),
+                  ),
+
+                  // ── Bottom overlay ─────────────────────
+
+                if(!widget.isLoading)
+                  Positioned(
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    child: _NameOverlay(item: widget.item),
+                  ),
+
+                  // ── Unsave button ──────────────────────
+                  Positioned(
+                    top: 10,
+                    right: 10,
+                    child: _UnsaveButton(
+                      saveStatus: widget.saveStatus,
+                      onTap: widget.onUnsave,
+                    ),
+                  ),
+
+                  // ── AI score badge ─────────────────────
+                  if (widget.item.aiScore > 0)
+                    Positioned(
+                      top: 10,
+                      left: 10,
+                      child: _ScoreBadge(score: widget.item.aiScore),
+                    ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _CardPlaceholder extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) => Container(
+    color: AppColors.border,
+    child: Center(
+      child: Icon(
+        Icons.checkroom_outlined,
+        size: AppConstants.w * 0.14,
+        color: AppColors.ink.withOpacity(0.12),
+      ),
+    ),
+  );
+}
+
+class _NameOverlay extends StatelessWidget {
+  const _NameOverlay({required this.item});
+
+  final OutfitItemModel item;
+
+  @override
+  Widget build(BuildContext context) {
+    final w = AppConstants.w;
+    return Container(
+      padding: const EdgeInsets.fromLTRB(12, 24, 12, 12),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.bottomCenter,
+          end: Alignment.topCenter,
+          colors: [Colors.black.withOpacity(0.65), Colors.transparent],
+        ),
+      ),
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(child: _Column(
-            indices: leftCol, outfits: outfits, savedStates: savedStates,
-            scales: cardScales, fades: cardFades, slides: cardSlides,
-            dark: dark, onToggle: onToggleSave, onTap: onTap,
-            altHeight: false,
-          )),
-          const SizedBox(width: 12),
-          Expanded(child: _Column(
-            indices: rightCol, outfits: outfits, savedStates: savedStates,
-            scales: cardScales, fades: cardFades, slides: cardSlides,
-            dark: dark, onToggle: onToggleSave, onTap: onTap,
-            altHeight: true,
-          )),
+          Text(
+            item.title,
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+              color: Colors.white,
+              letterSpacing: -0.3,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          if (item.categories.isNotEmpty)
+            Text(
+              item.categories.first.toUpperCase(),
+              style: TextStyle(
+                fontSize: 10,
+                color: Colors.white.withOpacity(0.75),
+                letterSpacing: 0.8,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
         ],
       ),
     );
   }
 }
 
-class _Column extends StatelessWidget {
-  const _Column({
-    required this.indices,
-    required this.outfits,
-    required this.savedStates,
-    required this.scales,
-    required this.fades,
-    required this.slides,
-    required this.dark,
-    required this.onToggle,
-    required this.onTap,
-    required this.altHeight,
-  });
+class _UnsaveButton extends StatefulWidget {
+  const _UnsaveButton({required this.saveStatus, required this.onTap});
 
-  final List<int>               indices;
-  final List<OutfitModel>       outfits;
-  final List<bool>              savedStates;
-  final List<Animation<double>> scales, fades;
-  final List<Animation<Offset>>  slides;
-  final bool                    dark, altHeight;
-  final ValueChanged<int>       onToggle, onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        if (altHeight) const SizedBox(height: 20),
-        ...indices.map((i) => Padding(
-          padding: const EdgeInsets.only(bottom: 14),
-          child: AnimatedBuilder(
-            animation: Listenable.merge([scales[i], fades[i]]),
-            builder: (_, child) => FadeTransition(
-              opacity: fades[i],
-              child: SlideTransition(
-                position: slides[i],
-                child: ScaleTransition(
-                  scale: scales[i],
-                  child: child,
-                ),
-              ),
-            ),
-            child: _TiltCard(
-              outfit: outfits[i],
-              isSaved: savedStates[i],
-              dark:   dark,
-              index:  i,
-              onToggleSave: () => onToggle(i),
-              onTap:        () => onTap(i),
-            ),
-          ),
-        )),
-      ],
-    );
-  }
-}
-
-// ─────────────────────────────────────────────────────────────
-//  3D TILT CARD
-//  GestureDetector tracks pointer position → Matrix4 perspective
-//  tilt ±6° on X/Y. Resets smoothly on pointer exit.
-// ─────────────────────────────────────────────────────────────
-class _TiltCard extends StatefulWidget {
-  const _TiltCard({
-    required this.outfit,
-    required this.isSaved,
-    required this.dark,
-    required this.index,
-    required this.onToggleSave,
-    required this.onTap,
-  });
-
-  final OutfitModel  outfit;
-  final bool         isSaved;
-  final bool         dark;
-  final int          index;
-  final VoidCallback onToggleSave;
+  final SaveStatus saveStatus;
   final VoidCallback onTap;
 
   @override
-  State<_TiltCard> createState() => _TiltCardState();
+  State<_UnsaveButton> createState() => _UnsaveButtonState();
 }
 
-class _TiltCardState extends State<_TiltCard>
+class _UnsaveButtonState extends State<_UnsaveButton>
     with SingleTickerProviderStateMixin {
-  late final AnimationController _resetCtrl;
-  late final Animation<double>   _resetAnim;
-
-  double _tiltX = 0, _tiltY = 0;
-  double _lastX = 0, _lastY = 0;
-  bool   _hovering = false;
-  bool   _pressed  = false;
+  late final AnimationController _pulse;
 
   @override
   void initState() {
     super.initState();
-    _resetCtrl = AnimationController(
+    _pulse = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 400),
+      duration: const Duration(milliseconds: 200),
     );
-    _resetAnim = CurvedAnimation(parent: _resetCtrl,
-        curve: Curves.easeOutCubic);
-    _resetCtrl.addListener(() {
-      setState(() {
-        _tiltX = _lastX * (1 - _resetAnim.value);
-        _tiltY = _lastY * (1 - _resetAnim.value);
-      });
-    });
   }
 
   @override
   void dispose() {
-    _resetCtrl.dispose();
+    _pulse.dispose();
     super.dispose();
   }
 
-  void _onPointerMove(PointerMoveEvent e, Size size) {
-    _resetCtrl.stop();
-    final cx = size.width  / 2;
-    final cy = size.height / 2;
-    setState(() {
-      _tiltY =  (e.localPosition.dx - cx) / cx * 6.0;
-      _tiltX = -(e.localPosition.dy - cy) / cy * 6.0;
-    });
-  }
-
-  void _onPointerExit() {
-    _lastX = _tiltX;
-    _lastY = _tiltY;
-    _resetCtrl.forward(from: 0);
-    setState(() => _hovering = false);
-  }
-
-  // Map index to a pseudo-random card height for Pinterest feel
-  double get _cardHeight {
-    const heights = [210.0, 260.0, 230.0, 280.0, 220.0, 250.0];
-    return heights[widget.index % heights.length];
-  }
-
-  Color get _outfitColor =>
-      widget.outfit.colorHex.first.withOpacity(0.85);
-
   @override
   Widget build(BuildContext context) {
-    final dark = widget.dark;
-    final cardBg = dark ? AppColors.cardBg : LT.cardBg;
-
+    final isLoading = widget.saveStatus == SaveStatus.loading;
     return GestureDetector(
-      onTap: widget.onTap,
-      onTapDown: (_) => setState(() => _pressed = true),
-      onTapUp:   (_) => setState(() => _pressed = false),
-      onTapCancel: () => setState(() => _pressed = false),
-      child: MouseRegion(
-        onEnter: (_) => setState(() => _hovering = true),
-        onExit:  (_) => _onPointerExit(),
-        child: Listener(
-          onPointerMove: (e) {
-            final box = context.findRenderObject() as RenderBox?;
-            if (box != null) _onPointerMove(e, box.size);
-          },
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 150),
-            transform: _buildMatrix(),
-            transformAlignment: Alignment.center,
-            child: Container(
-              height: _cardHeight,
-              decoration: BoxDecoration(
-                color: cardBg,
-                borderRadius: BorderRadius.circular(22),
-                border: Border.all(
-                  color: dark ? AppColors.cardBorder : LT.cardBorder,
-                  width: 1.0,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: _outfitColor.withOpacity(
-                        _hovering ? 0.20 : _pressed ? 0.12 : 0.10),
-                    blurRadius: _hovering ? 32 : 18,
-                    spreadRadius: -4,
-                    offset: Offset(0, _hovering ? 12 : 6),
-                  ),
-                  BoxShadow(
-                    color: Colors.black.withOpacity(dark ? 0.35 : 0.08),
-                    blurRadius: 20,
-                    spreadRadius: -6,
-                    offset: const Offset(0, 8),
-                  ),
-                ],
+      onTap: isLoading
+          ? null
+          : () {
+        _pulse.forward(from: 0);
+        widget.onTap();
+      },
+      child: AnimatedBuilder(
+        animation: _pulse,
+        builder: (_, child) =>
+            Transform.scale(scale: 1.0 - _pulse.value * 0.12, child: child),
+        child: Container(
+          width: 34,
+          height: 34,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.white.withOpacity(0.90),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.12),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
               ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(22),
-                child: Stack(children: [
-
-                  // ── Outfit color backdrop (pseudo-image)
-                  Positioned.fill(
-                    child: _OutfitVisual(outfit: widget.outfit),
-                  ),
-
-                  // ── Bottom name overlay
-                  Positioned(
-                    bottom: 0, left: 0, right: 0,
-                    child: NameOverlay(
-                      outfit: widget.outfit,
-                      dark:   dark,
-                    ),
-                  ),
-
-                  // ── Save button
-                  Positioned(
-                    top: 10, right: 10,
-                    child:  SaveButton(
-                      isSaved: widget.isSaved,
-                      dark:    dark,
-                      onToggle: widget.onToggleSave,
-                    ),
-                  ),
-
-                  // ── Score badge
-                  Positioned(
-                    top: 10, left: 10,
-                    child:  ScoreBadge(
-                      score: widget.outfit.score,
-                      dark:  dark,
-                    ),
-                  ),
-
-                  // ── Light reflection on hover
-                  if (_hovering)
-                    Positioned(
-                      top: -60, left: -40,
-                      child: Container(
-                        width: 200, height: 200,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          gradient: RadialGradient(
-                            colors: [
-                              Colors.white.withOpacity(0.10),
-                              Colors.transparent,
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                ]),
+            ],
+          ),
+          child: Center(
+            child: isLoading
+                ? const SizedBox(
+              width: 14,
+              height: 14,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: Colors.red,
               ),
-            ),
+            )
+                : const Icon(Icons.bookmark, color: Colors.red, size: 18),
           ),
         ),
       ),
     );
   }
-
-  Matrix4 _buildMatrix() {
-    const perspective = 0.001;
-    final scale = _pressed ? 0.97 : _hovering ? 1.02 : 1.0;
-
-    return Matrix4.identity()
-      ..setEntry(3, 2, perspective)
-      ..rotateX(_tiltX * math.pi / 180)
-      ..rotateY(_tiltY * math.pi / 180)
-      ..scale(scale);
-  }
 }
 
-class _OutfitVisual extends StatelessWidget {
-  const _OutfitVisual({required this.outfit});
-  final OutfitModel outfit;
+class _ScoreBadge extends StatelessWidget {
+  const _ScoreBadge({required this.score});
+
+  final double score;
 
   @override
-  Widget build(BuildContext context) {
-    return CustomPaint(
-      painter: _OutfitPainter(outfit.colorHex),
-      child: Center(
-        child: Opacity(
-          opacity: 0.18,
-          child: Icon(
-            Icons.dry_cleaning_rounded,
-            size: 64,
+  Widget build(BuildContext context) => Container(
+    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+    decoration: BoxDecoration(
+      color: Colors.black.withOpacity(0.55),
+      borderRadius: BorderRadius.circular(12),
+    ),
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const Icon(Icons.auto_awesome, color: Colors.amber, size: 10),
+        const SizedBox(width: 3),
+        Text(
+          score.toStringAsFixed(1),
+          style: const TextStyle(
             color: Colors.white,
+            fontSize: 10,
+            fontWeight: FontWeight.w600,
           ),
         ),
-      ),
-    );
-  }
-}
-class _OutfitPainter extends CustomPainter {
-  const _OutfitPainter(this.colors);
-  final List<Color> colors;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    // Vertical gradient using outfit palette
-    final grad = LinearGradient(
-      begin: Alignment.topLeft,
-      end:   Alignment.bottomRight,
-      colors: colors.length >= 2
-          ? colors.sublist(0, math.min(colors.length, 3))
-          : [colors.first, colors.first.withOpacity(0.6)],
-    ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
-    canvas.drawRect(
-        Rect.fromLTWH(0, 0, size.width, size.height),
-        Paint()..shader = grad);
-
-    // Subtle texture stripes
-    final linePaint = Paint()
-      ..color = Colors.white.withOpacity(0.04)
-      ..strokeWidth = 1;
-    for (var y = 0.0; y < size.height; y += 18) {
-      canvas.drawLine(Offset(0, y), Offset(size.width, y), linePaint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(_OutfitPainter old) => old.colors != colors;
+      ],
+    ),
+  );
 }

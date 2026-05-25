@@ -26,6 +26,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:graduation_proj/core/sharedWidgets/main_wrapper.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../../core/sharedWidgets/animations/bg_animation.dart';
@@ -152,13 +153,7 @@ class _UploadScreenViewState extends State<_UploadScreenView>
   }
 
   Future<void> _onCtaTap(BuildContext context, OutfitState state) async {
-    if (!state.canSubmit) {
-      AppSnackBar.showError(
-        context,
-        'Please add at least your Top, Bottom, and Shoes.',
-      );
-      return;
-    }
+
     HapticFeedback.mediumImpact();
     await _buttonCtrl.forward();
     _buttonCtrl.reset();
@@ -171,7 +166,10 @@ class _UploadScreenViewState extends State<_UploadScreenView>
       PageRouteBuilder(
         pageBuilder: (_, anim, __) => FadeTransition(
           opacity: anim,
-          child: ResultScreen(result: result),
+          child: BlocProvider.value(
+            value: context.read<OutfitBloc>(), // 🔥 نفس الـ bloc
+            child: ResultScreen(result: result),
+          ),
         ),
         transitionDuration: const Duration(milliseconds: 400),
       ),
@@ -204,7 +202,7 @@ class _UploadScreenViewState extends State<_UploadScreenView>
       builder: (context, state) {
         return Scaffold(
           backgroundColor: C.bg,
-          body: Stack(
+          body:MainWrapper(childWidget:  Stack(
             children: [
               AmbientBg(float1: _bgFloat1, float2: _bgFloat2),
               SafeArea(
@@ -275,7 +273,7 @@ class _UploadScreenViewState extends State<_UploadScreenView>
               ),
             ],
           ),
-        );
+        ));
       },
     );
   }
@@ -307,11 +305,11 @@ class _NavBar extends StatelessWidget {
           // Back button
           _RoundBtn(
             icon: Icons.arrow_back_ios_new_rounded,
-            onTap: () {},
+            onTap: () {Navigator.pop(context);},
           ),
           const Spacer(),
           const Text(
-            'StyleAI',
+            'OutFix AI',
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w700,

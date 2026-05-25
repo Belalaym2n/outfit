@@ -1,89 +1,90 @@
+// ─────────────────────────────────────────────────────────────
+//  outfit_use_cases.dart  —  Domain use cases
+//  Each use case has a single, focused responsibility.
+//  getSavedItemIds is no longer called inside getOutfits;
+//  that concern belongs in the notifier (parallel fetch).
+// ─────────────────────────────────────────────────────────────
 
+import 'package:graduation_proj/core/handleErrors/result_pattern.dart';
+import 'package:graduation_proj/features/savedItems/data/models/saved_item_model.dart';
 
- import '../entities/outfit_entity.dart';
+import '../../data/models/outfit_item_model.dart';
+import '../entities/outfit_entity.dart';
 import '../entities/saved_item_entity.dart';
 import '../repositories/outfit_domain_repo.dart';
 
-// ── GetOutfitsUseCase ─────────────────────────────────────────
+// ── GetOutfitsUseCase ────────────────────────────────────────
+/// Fetches a paginated page of outfits.
+/// isSaved merging is handled at the notifier level (not here)
+/// to avoid redundant network calls.
 class GetOutfitsUseCase {
+  const GetOutfitsUseCase(this._repository);
   final OutfitRepository _repository;
-  GetOutfitsUseCase(this._repository);
 
-  Future<List<OutfitItemEntity>> call({
+  Future<Result> call({
     required int page,
     required int pageSize,
-    String? userId,
-  }) async {
-    final items = await _repository.getOutfits(page: page, pageSize: pageSize);
-
-    if (userId == null) return items;
-
-    final savedIds = await _repository.getSavedItemIds(userId);
-    return items.map((e) => e.copyWith(isSaved: savedIds.contains(e.id))).toList();
-  }
+  }) =>
+      _repository.getOutfits(page: page, pageSize: pageSize);
 }
 
-// ── LoadMoreOutfitsUseCase ────────────────────────────────────
-// Alias with semantic meaning; delegates to GetOutfitsUseCase.
+// ── LoadMoreOutfitsUseCase ───────────────────────────────────
+/// Semantic alias; delegates to GetOutfitsUseCase.
 class LoadMoreOutfitsUseCase {
+  const LoadMoreOutfitsUseCase(this._getOutfits);
   final GetOutfitsUseCase _getOutfits;
-  LoadMoreOutfitsUseCase(this._getOutfits);
 
-  Future<List<OutfitItemEntity>> call({
+  Future<Result> call({
     required int page,
     required int pageSize,
-    String? userId,
+    String? userId, // kept for API parity, unused in static source
   }) =>
-      _getOutfits(page: page, pageSize: pageSize, userId: userId);
+      _getOutfits(page: page, pageSize: pageSize);
 }
 
-// ── SaveItemUseCase ───────────────────────────────────────────
+// ── SaveItemUseCase ──────────────────────────────────────────
 class SaveItemUseCase {
+  const SaveItemUseCase(this._repository);
   final OutfitRepository _repository;
-  SaveItemUseCase(this._repository);
 
-  Future<void> call({
-    required String userId,
-    required String itemId,
-    required String category,
+  Future<Result> call({
+    required SavedItemModel outfit
   }) =>
-      _repository.saveItem(
-        userId: userId,
-        itemId: itemId,
-        category: category,
-      );
+      _repository.saveItem(outfit:outfit);
 }
 
-// ── UnsaveItemUseCase ─────────────────────────────────────────
+// ── UnsaveItemUseCase ────────────────────────────────────────
 class UnsaveItemUseCase {
+  const UnsaveItemUseCase(this._repository);
   final OutfitRepository _repository;
-  UnsaveItemUseCase(this._repository);
 
-  Future<void> call({required String userId, required String itemId}) =>
-      _repository.unsaveItem(userId: userId, itemId: itemId);
+  Future<Result> call({    required SavedItemModel outfit
+  }) =>
+      _repository.unsaveItem(outfit:outfit);
 }
 
-// ── GetSavedItemsUseCase ──────────────────────────────────────
+// ── GetSavedItemsUseCase ─────────────────────────────────────
 class GetSavedItemsUseCase {
+  const GetSavedItemsUseCase(this._repository);
   final OutfitRepository _repository;
-  GetSavedItemsUseCase(this._repository);
 
-  Future<List<SavedItemEntity>> call(String userId) =>
+  Future<Result> call(String userId) =>
       _repository.getSavedItems(userId);
 
-  /// Returns the top N categories the user saves the most.
-  /// Used to seed the recommendation engine.
-  Future<List<String>> getTopCategories(String userId, {int topN = 5}) async {
-    final saved = await _repository.getSavedItems(userId);
+  Future<Result> getIds(String userId) =>
+      _repository.getSavedItems(userId);
 
-    final freq = <String, int>{};
-    for (final item in saved) {
-      freq[item.category] = (freq[item.category] ?? 0) + 1;
-    }
-
-    final sorted = freq.entries.toList()
-      ..sort((a, b) => b.value.compareTo(a.value));
-
-    return sorted.take(topN).map((e) => e.key).toList();
-  }
+  // /// Returns top N categories by save frequency.
+  // Future<List<String>> getTopCategories(String userId, {int topN = 5}) async {
+  //   final saved = await _repository.getSavedItems(userId);
+  //   final freq = <String, int>{};
+  //   for (final item in saved) {
+  //     freq.update(item.category, (v) => v + 1, ifAbsent: () => 1);
+  //   }
+  //   return (freq.entries.toList()
+  //     ..sort((a, b) => b.value.compareTo(a.value)))
+  //       .take(topN)
+  //       .map((e) => e.key)
+  //       .toList(growable: false);
+  // }
 }

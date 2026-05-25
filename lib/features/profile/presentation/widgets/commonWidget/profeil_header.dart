@@ -135,7 +135,7 @@ class ProfileHeader extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 7),
-                      Text('AI Style Explorer', style: T.fieldLabel),
+                      Text('OutFix AI Explorer', style: T.fieldLabel),
                     ],
                   ),
                 ),

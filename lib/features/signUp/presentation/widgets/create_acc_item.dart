@@ -1,7 +1,9 @@
 // ═══════════════════════════════════════════════════════════════
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:graduation_proj/features/signUp/presentation/widgets/policy_viewer.dart';
  import '../../../../config/routes/app_router.dart';
 import '../../../../core/intialization/init_di.dart';
 import '../../../../core/sharedWidgets/Buttons/primary_buttons.dart';
@@ -61,6 +63,8 @@ class _SignUpScreenItemState extends State<SignUpScreenItem>
   // Button spring
   late final Animation<double> _btnScale;
 
+  late final TapGestureRecognizer _termsTap;
+  late final TapGestureRecognizer _privacyTap;
 
 
   @override
@@ -69,6 +73,11 @@ class _SignUpScreenItemState extends State<SignUpScreenItem>
     _initControllers();
     _initAnimations();
     _entranceCtrl.forward();
+
+    _termsTap = TapGestureRecognizer()
+      ..onTap = () => PolicyViewerScreen.show(context, type: PolicyType.terms);
+    _privacyTap = TapGestureRecognizer()
+      ..onTap = () => PolicyViewerScreen.show(context, type: PolicyType.privacy);
   }
 
   void _initControllers() {
@@ -330,12 +339,15 @@ class _SignUpScreenItemState extends State<SignUpScreenItem>
                   style: T.bodySmall,
                   children: [
                     const TextSpan(text: 'I agree to the '),
-                    TextSpan(
+                    TextSpan(                    recognizer: _termsTap,
+
                       text: 'Terms of Service',
                       style: T.link.copyWith(fontSize: 13),
                     ),
                     const TextSpan(text: ' and '),
                     TextSpan(
+                      recognizer: _privacyTap,
+
                       text: 'Privacy Policy',
                       style: T.link.copyWith(fontSize: 13),
                     ),

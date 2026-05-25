@@ -23,7 +23,7 @@ class  Wordmark extends StatelessWidget {
         ),
         const SizedBox(width: 8),
         const Text(
-          'StyleAI',
+          'OutFix AI',
           style: TextStyle(
             fontSize: 17, fontWeight: FontWeight.w700,
             color: AppColors.textHigh, letterSpacing: -0.4,

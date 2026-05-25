@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:graduation_proj/core/sharedWidgets/main_wrapper.dart';
 import 'package:graduation_proj/features/signUp/presentation/widgets/create_acc_item.dart';
 import '../../../../config/routes/app_router.dart';
 import '../../../../core/intialization/init_di.dart';
@@ -126,8 +127,6 @@ class _SignUpScreenState extends State<SignUpScreen>
 
   @override
   Widget build(BuildContext context) {
-    final mq = MediaQuery.of(context);
-    final hPad = mq.size.width >= 600 ? 48.0 : 24.0;
 
     return BlocProvider(
       create: (_) => RegisterBloc(registerUseCase: getIt<RegisterUseCase>()),
@@ -168,15 +167,17 @@ class _SignUpScreenState extends State<SignUpScreen>
         },
 
         builder: (context, state) {
-          return Form(
-            key: _formKey,
-            child: SignUpScreenItem(
-              changeTerms: () =>
-                  setState(() => _agreedToTerms = !_agreedToTerms),
-              agreedToTerms: _agreedToTerms,
+          return MainWrapper(
+            childWidget: Form(
+              key: _formKey,
+              child: SignUpScreenItem(
+                changeTerms: () =>
+                    setState(() => _agreedToTerms = !_agreedToTerms),
+                agreedToTerms: _agreedToTerms,
 
-              onTap: () => _onCreateAccount(context),
-              fields: _fields,
+                onTap: () => _onCreateAccount(context),
+                fields: _fields,
+              ),
             ),
           );
         },

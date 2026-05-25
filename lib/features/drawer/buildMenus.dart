@@ -1,13 +1,19 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_zoom_drawer/flutter_zoom_drawer.dart';
+import 'package:graduation_proj/core/sharedWidgets/animations/fade_slide.dart';
 import 'package:graduation_proj/features/homePage/presentation/home_page.dart';
 
+import '../../core/sharedWidgets/animations/slide_naviagation.dart';
 import '../../core/utils/app_texts.dart';
 import '../compatapilityModel/presentation/pages/request_to_recommend.dart';
 import '../support/presentation/pages/support_screen.dart';
+import '../teamMember/data/team_data.dart';
+import '../teamMember/data/team_member_model.dart';
+import '../teamMember/page/college.dart';
+import '../teamMember/page/team_member_screen.dart';
 import '../teamMember/page/team_screen.dart';
+import '../teamMember/widgets/team_member_card.dart';
 import 'drawer_user_card.dart';
 import 'logout_button.dart';
 
@@ -77,23 +83,6 @@ class FadeScaleRoute extends PageRouteBuilder {
 // ─────────────────────────────────────────────────────────────
 //  SHARED HELPERS
 // ─────────────────────────────────────────────────────────────
-class _FadeSlide extends StatelessWidget {
-  const _FadeSlide({
-    required this.fade,
-    required this.slide,
-    required this.child,
-  });
-
-  final Animation<double> fade;
-  final Animation<Offset> slide;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) => FadeTransition(
-    opacity: fade,
-    child: SlideTransition(position: slide, child: child),
-  );
-}
 
 class _SectionLabel extends StatelessWidget {
   const _SectionLabel(this.text);
@@ -107,52 +96,7 @@ class _SectionLabel extends StatelessWidget {
   );
 }
 
-class _AmbientBg extends StatelessWidget {
-  const _AmbientBg({required this.anim});
 
-  final Animation<double> anim;
-
-  @override
-  Widget build(BuildContext context) {
-    final s = MediaQuery.sizeOf(context);
-    return AnimatedBuilder(
-      animation: anim,
-      builder: (_, __) => Stack(
-        children: [
-          Positioned(
-            top: -s.width * 0.36 + anim.value * 0.6,
-            right: -s.width * 0.18,
-            child: _Blob(d: s.width * 0.86, o: 0.040),
-          ),
-          Positioned(
-            bottom: -s.width * 0.28 - anim.value * 0.4,
-            left: -s.width * 0.28,
-            child: _Blob(d: s.width * 0.70, o: 0.032),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _Blob extends StatelessWidget {
-  const _Blob({required this.d, required this.o});
-
-  final double d, o;
-
-  @override
-  Widget build(BuildContext context) => Opacity(
-    opacity: o,
-    child: Container(
-      width: d,
-      height: d,
-      decoration: const BoxDecoration(
-        color: C.textHigh,
-        shape: BoxShape.circle,
-      ),
-    ),
-  );
-}
 
 // ═══════════════════════════════════════════════════════════════
 //  HOME PAGE SCREEN  (drop-in replacement — same structure)
@@ -289,6 +233,7 @@ class _BuildMenuScreenState extends State<BuildMenuScreen>
     final h = mq.size.height;
     final w = mq.size.width;
 
+
     return Container(
       color: C.drawerBg,
       child: Padding(
@@ -302,10 +247,10 @@ class _BuildMenuScreenState extends State<BuildMenuScreen>
             SizedBox(height: h * 0.1),
 
             // ── User card
-            _FadeSlide(
+            FadeSlide(
               fade: _userFade,
               slide: _userSlide,
-              child:    DrawerUserCard(),
+              child: DrawerUserCard(),
             ),
 
             SizedBox(height: h * 0.038),
@@ -320,21 +265,31 @@ class _BuildMenuScreenState extends State<BuildMenuScreen>
 
             // ── Menu items
             _buildItem(0, Icons.home_rounded, 'Home', null),
-            _buildItem(1, Icons.auto_awesome_rounded, 'AI Analysis', UploadScreen()),
+            _buildItem(
+              1,
+              Icons.auto_awesome_rounded,
+              'AI Analysis',
+              UploadScreen(),
+            ),
 
             _buildItem(
-              4,
+              2,
               Icons.help_outline_rounded,
               'Support',
               const SupportCenterScreen(),
             ),
             _buildItem(
-              5,
+              3,
               Icons.notifications_outlined,
               'Our Team',
               const OurTeamScreen(),
             ),
 
+            _buildItem(
+              4,
+              Icons.notifications_outlined,
+              'Our College',OurCollege()
+            ),
             SizedBox(height: h * 0.25),
 
             // ── Logout — minimal outlined style
@@ -357,7 +312,7 @@ class _BuildMenuScreenState extends State<BuildMenuScreen>
     Widget? screen, {
     int badge = 0,
   }) {
-    return _FadeSlide(
+    return FadeSlide(
       fade: _itemFades[idx],
       slide: _itemSlides[idx],
       child: _DrawerMenuItem(
@@ -378,14 +333,7 @@ class _BuildMenuScreenState extends State<BuildMenuScreen>
   }
 }
 
-// ─────────────────────────────────────────────────────────────
-//  DRAWER USER CARD
-// ─────────────────────────────────────────────────────────────
 
-// ─────────────────────────────────────────────────────────────
-//  DRAWER MENU ITEM
-//  Selected state: soft ink-tinted background + left indicator.
-// ─────────────────────────────────────────────────────────────
 class _DrawerMenuItem extends StatefulWidget {
   const _DrawerMenuItem({
     required this.icon,
@@ -493,19 +441,3 @@ class _DrawerMenuItemState extends State<_DrawerMenuItem> {
   }
 }
 
-// ─────────────────────────────────────────────────────────────
-//  DRAWER LOGOUT BUTTON — minimal outlined
-
-
-
-// ═══════════════════════════════════════════════════════════════
-//  SUPPORT CENTER SCREEN
-// ═══════════════════════════════════════════════════════════════
-//
-//  ANIMATION:
-//  _supportCtrl (2200ms) — large timeline, 4 major sections:
-//    Nav    → 0.00–0.22
-//    Video  → 0.10–0.36
-//    Guide  → 0.28–0.55, steps stagger 0.04 each
-//    Report → 0.52–0.76
-//    Idea   → 0.70–0.92

@@ -1,35 +1,30 @@
-
 import 'package:equatable/equatable.dart';
 
-import '../../domain/entities/outfit_entity.dart';
+import '../../data/models/outfit_item_model.dart';
 
-// ─────────────────────────────────────────────────────────────
-//  OutfitStatus — master status of the outfit list
-// ─────────────────────────────────────────────────────────────
+// ── Master list status ────────────────────────────────────────────────────────
 enum OutfitStatus {
   initial,
-  loading,          // first-page full-screen loader
-  success,          // data loaded, list visible
-  paginationLoading,// loading next page (bottom indicator)
-  error,            // hard failure
+  loading,           // first-page full-screen loader
+  success,           // data loaded, list visible
+  paginationLoading, // loading next page (bottom indicator)
+  error,             // hard failure
 }
 
-// ─────────────────────────────────────────────────────────────
-//  SaveStatus — per-item save/unsave tracking
-// ─────────────────────────────────────────────────────────────
+// ── Per-item save / unsave status ─────────────────────────────────────────────
 enum SaveStatus { idle, loading, success, error }
 
-// ─────────────────────────────────────────────────────────────
-//  OutfitState — single immutable state object
-// ─────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+//  Single immutable state object
+// ─────────────────────────────────────────────────────────────────────────────
 class OutfitState extends Equatable {
   final OutfitStatus status;
-  final List<OutfitItemEntity> items;
+  final List<OutfitItemModel> items;
   final bool hasMore;
   final int currentPage;
   final String? errorMessage;
-
-  /// itemId → current save status (only active entries are kept)
+  final Set<String> savedIds;
+  /// itemId → current per-item save status
   final Map<String, SaveStatus> saveStatuses;
 
   /// itemId → error message for individual save failures
@@ -39,25 +34,28 @@ class OutfitState extends Equatable {
     this.status = OutfitStatus.initial,
     this.items = const [],
     this.hasMore = true,
-    this.currentPage = 0,
+    this.currentPage = 0,this.savedIds = const {},
     this.errorMessage,
     this.saveStatuses = const {},
     this.saveErrors = const {},
   });
 
-  // ── Convenience getters ───────────────────────────────────
-  bool get isInitialLoading => status == OutfitStatus.loading && items.isEmpty;
-  bool get isPaginationLoading => status == OutfitStatus.paginationLoading;
+  // ── Convenience getters ───────────────────────────────────────────────────
+  bool get isInitialLoading =>
+      status == OutfitStatus.loading && items.isEmpty;
+
+  bool get isPaginationLoading =>
+      status == OutfitStatus.paginationLoading;
 
   SaveStatus saveStatusFor(String itemId) =>
       saveStatuses[itemId] ?? SaveStatus.idle;
 
-  // ── Immutable copy ────────────────────────────────────────
+  // ── Immutable copy ────────────────────────────────────────────────────────
   OutfitState copyWith({
     OutfitStatus? status,
-    List<OutfitItemEntity>? items,
+    List<OutfitItemModel>? items,
     bool? hasMore,
-    int? currentPage,
+    int? currentPage,Set<String>? savedIds,
     String? errorMessage,
     Map<String, SaveStatus>? saveStatuses,
     Map<String, String?>? saveErrors,
@@ -66,6 +64,7 @@ class OutfitState extends Equatable {
     return OutfitState(
       status: status ?? this.status,
       items: items ?? this.items,
+      savedIds: savedIds??this.savedIds,
       hasMore: hasMore ?? this.hasMore,
       currentPage: currentPage ?? this.currentPage,
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
@@ -74,18 +73,23 @@ class OutfitState extends Equatable {
     );
   }
 
-  /// Returns a new state with an updated isSaved flag for [itemId].
+  /// Returns a new state with the `isSaved` flag toggled for one item.
+  /// Uses [OutfitItemModel.copyWith] — no mutable mutation needed.
   OutfitState withToggledItem(String itemId, {required bool isSaved}) {
-    final updated = items.map((item) {
+    final updatedItems = items.map((item) {
       return item.id == itemId ? item.copyWith(isSaved: isSaved) : item;
     }).toList();
-    return copyWith(items: updated);
+    return copyWith(items: updatedItems);
   }
 
-  /// Sets the save status for a single item.
-  OutfitState withSaveStatus(String itemId, SaveStatus status, [String? error]) {
+  /// Sets the per-item save status (and optional error message).
+  OutfitState withSaveStatus(
+      String itemId,
+      SaveStatus saveStatus, [
+        String? error,
+      ]) {
     return copyWith(
-      saveStatuses: Map.from(saveStatuses)..[itemId] = status,
+      saveStatuses: Map.from(saveStatuses)..[itemId] = saveStatus,
       saveErrors: Map.from(saveErrors)..[itemId] = error,
     );
   }
@@ -97,7 +101,7 @@ class OutfitState extends Equatable {
     hasMore,
     currentPage,
     errorMessage,
+    savedIds, // 🔥 أهم سطر
     saveStatuses,
     saveErrors,
-  ];
-}
+  ];}

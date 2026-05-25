@@ -19,8 +19,7 @@ class  SettingItem {
 
 final  settingItems = <SettingItem>[
 
-  const SettingItem(icon: Icons.shield_outlined,          title: 'Privacy Settings'),
-  const SettingItem(
+   const SettingItem(
     icon:      Icons.logout_rounded,
     title:     'Sign Out',
     isLogout:  true,

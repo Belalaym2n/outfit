@@ -36,6 +36,10 @@ dependencies:
   cupertino_icons: ^1.0.8
   # Use with the CupertinoIcons class for iOS style icons.
 
+# for track error
+  firebase_crashlytics: ^5.2.0
+# for takne helper
+  dart_jsonwebtoken: ^3.4.0
 # for deep link
 #  app_links: ^7.0.0
   share_plus: ^12.0.2

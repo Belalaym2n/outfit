@@ -1,17 +1,17 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:graduation_proj/features/login/data/models/user_model.dart';
 
 import '../../../../../core/apiManager/api_manager.dart';
 import '../../../../../core/apiManager/dio_client.dart';
 import '../../../../../core/apiManager/end_points.dart';
 import '../../../../../core/cahsing/app_keys.dart';
+import '../../../../../core/cahsing/app_storage_service.dart';
 import '../../../../../core/cahsing/get_storage_helper.dart';
 import '../../../../../core/cahsing/load_data.dart';
-import '../../../../../core/cahsing/secure_storage.dart';
-import '../../../../../core/handleErrors/result_pattern.dart';
+ import '../../../../../core/handleErrors/result_pattern.dart';
 import '../../models/loginModel.dart';
-import '../../models/user_model.dart';
-import 'loginRDS.dart';
+ import 'loginRDS.dart';
 
 class LoginRDSImpl implements LoginRDS {
   @override
@@ -25,19 +25,23 @@ class LoginRDSImpl implements LoginRDS {
     if (response is Result) {
       return response; // Result.failure
     }
-    await DioClient.saveToken(response['token']);
+    final user = UserModel.fromJson(response);
 
-    final user = LoginModel.fromJson(response);
+    await DioClient.saveToken(user.token);
 
-    await saveUserData(user);
-
+    await AppStorageService.instance.saveUserSession(
+      token: response['token'],
+      name: user.fullName,
+      email: model.email,
+    );
     return Result.success(response);
   }
 
   @override
-  Future<Result> saveUserData(LoginModel user) async {
+  Future<Result> saveUserData(UserModel user) async {
     try {
-      GetStorageHelper.write(AppKeys.name, user.name ?? "");
+      print("user ${user.fullName}");
+      GetStorageHelper.write(AppKeys.name, user.fullName ?? "");
       GetStorageHelper.write(AppKeys.email, user.email);
       return Result.success("data saved");
     } catch (e) {

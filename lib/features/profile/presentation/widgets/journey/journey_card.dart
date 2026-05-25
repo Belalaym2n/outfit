@@ -59,7 +59,7 @@ class JourneyCard extends StatelessWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Your AI Journey', style: T.cardTitle.copyWith(
+                    Text('Your OutFix AI Journey', style: T.cardTitle.copyWith(
                       color: AppColors.primaryColor
                     ) ),
                     Text('Style mastery progress', style: T.fieldLabel.copyWith(
@@ -114,7 +114,7 @@ class JourneyCard extends StatelessWidget {
                           ),
                           // Filled portion
                           FractionallySizedBox(
-                            widthFactor:user.avgScore.toDouble()/100,
+                            widthFactor: progressValue.value,
                             child: Container(
                               height: 7,
                               decoration: BoxDecoration(

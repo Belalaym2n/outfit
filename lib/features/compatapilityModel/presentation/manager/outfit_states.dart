@@ -14,7 +14,7 @@ enum OutfitStatus {
 
 
 
-class OutfitState extends Equatable {
+class OutfitState extends Equatable { 
   final OutfitStatus          status;
   final List<XFile?>          images;       // exactly 5 nullable slots
   final bool                  isValid;
@@ -23,8 +23,7 @@ class OutfitState extends Equatable {
   final OutfitResponseModel?  result;
 
   int get imagesCount => images.where((img) => img != null).length;
-  bool get canSubmit   => imagesCount >= 3 && !isSubmitting;
-
+  bool get canSubmit => isValid && !isSubmitting;
   const OutfitState({
     this.status       = OutfitStatus.initial,
     required this.images,

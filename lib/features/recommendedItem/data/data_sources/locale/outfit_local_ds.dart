@@ -1,44 +1,43 @@
+// ─────────────────────────────────────────────────────────────
+//  outfit_local_ds.dart  —  Local static data source
+//  Handles pagination purely by offset. No stale hasMore field.
+// ─────────────────────────────────────────────────────────────
 
-import '../../models/outfit_item_model.dart';
-import '../../models/outfit_statiic_data.dart';
+import 'package:graduation_proj/features/recommendedItem/data/models/outfit_item_model.dart';
+
+import '../../../../../core/handleErrors/result_pattern.dart';
 
 abstract class OutfitLocalDataSource {
-  Future<List<OutfitItemModel>> getOutfits({
-    required int page,
-    required int pageSize,
-  });
+  Future<Result> getOutfits({required int page, required int pageSize});
 
-  bool get hasMore;
   int get totalCount;
+
+  bool hasMoreAfter(int page, int pageSize);
 }
 
 class OutfitLocalDataSourceImpl implements OutfitLocalDataSource {
-  final List<OutfitItemModel> _allItems = OutfitStaticData.all;
+  // Lazy-initialized once; immutable after that.
+  static final List<OutfitItemModel> _allItems =fakeOutfits;
 
   @override
   int get totalCount => _allItems.length;
 
   @override
-  bool get hasMore => false; // evaluated per-call; see getOutfits
+  bool hasMoreAfter(int page, int pageSize) =>
+      (page + 1) * pageSize < _allItems.length;
 
   @override
-  Future<List<OutfitItemModel>> getOutfits({
-    required int page,
-    required int pageSize,
-  }) async {
-    // Simulate realistic network/DB latency
-    await Future.delayed(
-      Duration(milliseconds: page == 0 ? 800 : 500),
-    );
+  Future<Result> getOutfits({required int page, required int pageSize}) async {
+    try {
+      // Simulated latency (first page slightly longer)
+      await Future.delayed(Duration(milliseconds: page == 0 ? 600 : 350));
 
-    final start = page * pageSize;
-    if (start >= _allItems.length) return [];
+      final start = page * pageSize;
 
-    final end = (start + pageSize).clamp(0, _allItems.length);
-    return _allItems.sublist(start, end);
-  }
-
-  bool hasMoreItems(int page, int pageSize) {
-    return (page + 1) * pageSize < _allItems.length;
+      final end = (start + pageSize).clamp(0, _allItems.length);
+      return Result.success(_allItems.sublist(start, end));
+    } catch (e) {
+      return Result.failure("error");
+    }
   }
 }

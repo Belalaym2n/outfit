@@ -1,11 +1,9 @@
- import 'package:flutter/cupertino.dart';
-import 'package:graduation_proj/features/login/presentation/pages/login_screen.dart';
-import 'package:graduation_proj/features/splash/splash_screen.dart';
-
+import 'package:flutter/cupertino.dart';
 import '../../../../core/apiManager/dio_client.dart';
-import '../../../../core/cahsing/app_keys.dart';
-import '../../../../core/cahsing/secure_storage.dart';
+ import '../../../../core/services/taken_helper.dart';
 import '../../../bottom_nav/bottom_nav.dart';
+import 'login_screen.dart';
+
 class AutoLogin extends StatefulWidget {
   const AutoLogin({super.key});
 
@@ -14,13 +12,26 @@ class AutoLogin extends StatefulWidget {
 }
 
 class _AutoLoginState extends State<AutoLogin> {
-  late String? userID;
+  String? token;
   bool isLoading = true;
 
   checkUserLogin() async {
-    final token = await DioClient.getToken();
+    final storedToken = await DioClient.getToken();
+
+    if (storedToken != null && storedToken.isNotEmpty) {
+      final isExpired = TokenHelper.isExpired(storedToken);
+
+      if (!isExpired) {
+        token = storedToken;
+      } else {
+        await DioClient.clearToken();
+        token = null;
+      }
+    } else {
+      token = null;
+    }
+
     setState(() {
-      userID = token;
       isLoading = false;
     });
   }
@@ -34,9 +45,9 @@ class _AutoLoginState extends State<AutoLogin> {
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
-      return const CupertinoActivityIndicator(); // أو أي لودينج ويدجت يعجبك
+      return const CupertinoActivityIndicator();
     }
 
-    return userID != null ? BottomNav() : LoginScreen();
+    return token != null ? BottomNav() : LoginScreen();
   }
 }

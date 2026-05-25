@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../config/routes/app_router.dart';
 import '../../../../core/intialization/init_di.dart';
@@ -46,11 +47,7 @@ class _LoginScreenState extends State<LoginScreen> {
           else if (state.status == LoginStatus.success) {
             Navigator.pop(context);
 
-            Navigator.pushNamedAndRemoveUntil(
-              context,
-              AppRoutes.bottomNav,
-                  (route) => false,
-            );
+            context.go(AppRoutes.home);
 
            }
 
