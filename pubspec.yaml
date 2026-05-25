@@ -97,6 +97,7 @@ dependencies:
   flutter_offline: ^6.0.0
 
   #  for testing
+  mocktail: ^1.0.5
   device_preview: ^1.3.1
   # for call Api's
   dio: ^5.9.0
